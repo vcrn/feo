@@ -1,6 +1,6 @@
 [package]
 name = "feo"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Victor Nilsson <@vcrn>"]
 description = "Simple system monitoring CLI tool for Linux, with GPU temperature monitor for Raspberry Pi"
 keywords = ["feo", "monitoring", "htop", "cli", "linux"]

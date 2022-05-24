@@ -39,6 +39,7 @@ mod test_lib {
     }
 
     #[test]
+    #[ignore] // Fails on VM such as Github Actions
     fn test_get_cpu_temp() {
         SystemInfo::get_cpu_temp();
     }
@@ -54,6 +55,7 @@ mod test_lib {
     }
 
     #[test]
+    #[ignore] // Fails on VM such as Github Actions
     fn test_system_info_new_gpu_false() {
         SystemInfo::new(false, SystemInfo::get_cpus());
     }

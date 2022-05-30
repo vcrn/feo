@@ -2,11 +2,16 @@ mod test_lib {
     use super::super::*;
 
     #[test]
-    fn test_print_comp_temp() {
+    #[ignore] // Fails on VM such as Github Actions, and clears screen
+    fn test_update_monitor() {
         let colors = Colors::new('s');
-        let temp = 38.0;
-        let component = "CPU";
+        let gpu = false;
+        let cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus()).cpu_time;
+        let system_info = SystemInfo::new(gpu, SystemInfo::get_cpus());
+        let mut mem_total = Memory::get_total();
+        mem_total.save_with_unit();
+        let delay = 3;
 
-        print_comp_temp(colors.cpu, temp, component);
+        update_monitor(delay, &system_info, &colors, cpu_time_prev, &mem_total)
     }
 }

@@ -1,5 +1,8 @@
 /// A simple system resource monitoring CLI tool for Linux, especially on Raspberry Pi
 /// Author: github.com/vcrn
+mod colors;
+
+use colors::Colors;
 use rounded_div::RoundedDiv;
 use std::io::Error;
 use std::process::Command;
@@ -9,40 +12,6 @@ use termion::color::{Fg, Reset, Rgb};
 #[cfg(test)]
 #[path = "../tests/unit_tests/test_lib.rs"]
 mod test_lib;
-
-/// Colors to print parts of the monitor in
-struct Colors {
-    temp: Rgb,
-    cpu: Rgb,
-    mem: Rgb,
-    uptime: Rgb,
-}
-
-impl Colors {
-    fn new(color: char) -> Colors {
-        match color {
-            'w' => Colors {
-                temp: Rgb(255, 255, 255),
-                cpu: Rgb(255, 255, 255),
-                mem: Rgb(255, 255, 255),
-                uptime: Rgb(255, 255, 255),
-            },
-            'b' => Colors {
-                temp: Rgb(0, 0, 0),
-                cpu: Rgb(0, 0, 0),
-                mem: Rgb(0, 0, 0),
-                uptime: Rgb(0, 0, 0),
-            },
-            _ => Colors {
-                // Standard color theme.
-                temp: Rgb(255, 255, 0),
-                cpu: Rgb(0, 220, 0),
-                mem: Rgb(255, 0, 255),
-                uptime: Rgb(0, 230, 230),
-            },
-        }
-    }
-}
 
 /// Used for storing total and available memory
 struct Memory {

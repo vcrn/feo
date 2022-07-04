@@ -168,7 +168,7 @@ impl SystemInfo {
             fs::read_to_string("/proc/stat").expect("Failed to read cpu times from file");
 
         let proc_stat_split: Vec<&str> = proc_stat_content.split(&[' ', '\n'][..]).collect();
-        let mut cpu_times = Vec::new();
+        let mut cpu_times = Vec::with_capacity(num_cpus);
 
         for i in 0..num_cpus {
             let search_word = format!("cpu{}", i);

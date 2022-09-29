@@ -1,6 +1,6 @@
 # FeO
 
-FeO (feo) is a very simple system monitoring CLI tool for Linux written by <a href="https://github.com/vcrn">@vcrn</a> and implemented in Rust. 
+`FeO` is a very simple system monitoring CLI tool for Linux written by <a href="https://github.com/vcrn">@vcrn</a> and implemented in Rust. 
 
 <div align="center">
   <img src="assets/demo.gif" alt="Demo GIF of FeO running."/>
@@ -17,9 +17,13 @@ For information regarding commands, like setting color scheme, update-delay and 
 feo -h
 ```
 
+# Dependencies
+
+`FeO` uses the crates `sinfo`, `termion`, `clap` and `rounded-div`.
+
 # License
 
-feo is dual-licensed under either
+`FeO` is dual-licensed under either
 
 * MIT License (LICENSE-MIT or http://opensource.org/licenses/MIT)
 * Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)

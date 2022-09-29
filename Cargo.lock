@@ -70,6 +70,7 @@ version = "0.1.2"
 dependencies = [
  "clap",
  "rounded-div",
+ "sinfo",
  "termion",
 ]
 
@@ -193,6 +194,12 @@ name = "rounded-div"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "464c8fb0a126d6a0326baf6abf1aa62c2da0d5780aa781a81451d64f543f5e2f"
+
+[[package]]
+name = "sinfo"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b238499dbf012858fd3e46ba096c93c4dcb1e622a42c8eb28b74426090ad187e"
 
 [[package]]
 name = "strsim"

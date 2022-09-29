@@ -1,14 +1,13 @@
 /// A simple system resource monitoring CLI tool for Linux, especially on Raspberry Pi
 /// Author: github.com/vcrn
 mod colors;
-mod system_info;
 
 use colors::Colors;
 use rounded_div::RoundedDiv;
+use sinfo::{Memory, SystemInfo};
 use std::io::Error;
 use std::process::Command;
 use std::{fs, str, thread, time};
-use system_info::{Memory, SystemInfo};
 use termion::color::{Fg, Reset, Rgb};
 
 #[cfg(test)]

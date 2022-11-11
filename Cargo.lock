@@ -197,7 +197,7 @@ checksum = "464c8fb0a126d6a0326baf6abf1aa62c2da0d5780aa781a81451d64f543f5e2f"
 
 [[package]]
 name = "sinfo"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "strsim"

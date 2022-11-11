@@ -10,10 +10,6 @@ use std::process::Command;
 use std::{fs, str, thread, time};
 use termion::color::{Fg, Reset, Rgb};
 
-#[cfg(test)]
-#[path = "../tests/unit_tests/test_lib.rs"]
-mod test_lib;
-
 /// Basic check for compability instead of designing all corresponding functions to handle errors well.
 fn check_compability(check_gpu: bool) -> Result<(), Error> {
     Command::new("nproc").output()?; // Checking number of CPU cores
@@ -138,4 +134,23 @@ fn print_uptime(color: Rgb, uptime_sec: f64) {
         uptime_min,
         uptime_sec_remain
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[ignore] // Fails on VM such as Github Actions, and clears screen
+    fn test_update_monitor() {
+        let colors = Colors::new('s');
+        let gpu = false;
+        let cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus()).cpu_time;
+        let system_info = SystemInfo::new(gpu, SystemInfo::get_cpus());
+        let mut mem_total = Memory::get_total();
+        mem_total.save_with_unit();
+        let delay = 3;
+
+        update_monitor(delay, &system_info, &colors, cpu_time_prev, &mem_total)
+    }
 }

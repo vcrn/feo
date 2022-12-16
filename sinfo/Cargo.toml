@@ -1,6 +1,6 @@
 [package]
 name = "sinfo"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Crate that checks Linux systems' CPU temperature, RAM and swap (total and free), CPU time, number of CPUs, and uptime."
 keywords = ["sinfo", "linux", "monitoring"]

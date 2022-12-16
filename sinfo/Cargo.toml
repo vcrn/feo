@@ -8,3 +8,6 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/vcrn/feo/tree/main/sinfo"
 homepage = "https://github.com/vcrn/feo/tree/main/sinfo"
 readme = "README.md"
+
+[dependencies]
+anyhow = "1.0.66"

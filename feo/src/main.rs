@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{io::Error, process};
+use std::process;
 
 #[derive(Parser, Debug)]
 #[clap(author = "Victor Nilsson (github.com/vcrn)", version, about = "Simple system resource monitoring CLI tool for Linux systems, with GPU temperature monitoring for Raspberry Pi)", long_about = None)]
@@ -17,8 +17,8 @@ pub struct Args {
     delay: usize,
 }
 
-fn terminate_with_error(err: Error) {
-    eprintln!("Compability issue. FeO is designed to run on Linux. GPU temperature monitor option only works for Raspberry Pi. Error message: {}", err);
+fn terminate_with_error(err: anyhow::Error) {
+    eprintln!("Compability issue. FeO is designed to run on Linux. GPU temperature monitor option only works for Raspberry Pi. Error message: {err}");
     process::exit(1);
 }
 

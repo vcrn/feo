@@ -23,7 +23,7 @@ fn check_compability(check_gpu: bool) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn run(delay: usize, gpu: bool, color: char) -> Result<(), Error> {
+pub fn run(delay: usize, gpu: bool, color: char) -> Result<(), anyhow::Error> {
     check_compability(gpu)?; // TODO: add error message specifying that it failed since system is not Linux or can't read GPU temp
 
     let colors = Colors::new(color);
@@ -35,13 +35,13 @@ pub fn run(delay: usize, gpu: bool, color: char) -> Result<(), Error> {
 
     let delay_u64 = delay_usize as u64;
 
-    let mut mem_total = Memory::get_total();
+    let mut mem_total = Memory::get_total()?;
     mem_total.save_with_unit();
 
-    let mut cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus()).cpu_time; // Initial CPU time
+    let mut cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus()?)?.cpu_time; // Initial CPU time
 
     loop {
-        let system_info = SystemInfo::new(gpu, cpu_time_prev.len());
+        let system_info = SystemInfo::new(gpu, cpu_time_prev.len())?;
         update_monitor(
             delay_usize,
             &system_info,
@@ -145,9 +145,11 @@ mod tests {
     fn test_update_monitor() {
         let colors = Colors::new('s');
         let gpu = false;
-        let cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus()).cpu_time;
-        let system_info = SystemInfo::new(gpu, SystemInfo::get_cpus());
-        let mut mem_total = Memory::get_total();
+        let cpu_time_prev = SystemInfo::new(gpu, SystemInfo::get_cpus().unwrap())
+            .unwrap()
+            .cpu_time;
+        let system_info = SystemInfo::new(gpu, SystemInfo::get_cpus().unwrap()).unwrap();
+        let mut mem_total = Memory::get_total().unwrap();
         mem_total.save_with_unit();
         let delay = 3;
 

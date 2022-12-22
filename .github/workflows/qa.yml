@@ -28,3 +28,6 @@ jobs:
       
     - name: Clippy
       run: cargo clippy -- -D warnings
+        
+    - name: Audit
+      run: cargo audit

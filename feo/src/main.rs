@@ -13,7 +13,7 @@ pub struct Args {
     gpu: bool,
 
     /// Set the delay between updates, in whole seconds
-    #[clap(short, long, default_value_t = 2)]
+    #[clap(short = 'd', long, default_value_t = 2)]
     delay: usize,
 }
 

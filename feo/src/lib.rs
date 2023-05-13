@@ -1,4 +1,6 @@
-/// A simple system resource monitoring CLI tool for Linux, especially on Raspberry Pi
+/// A simple system resource monitoring CLI tool for Linux, with GPU monitoring
+/// feature for Raspberry Pi
+///
 /// Author: github.com/vcrn
 mod colors;
 
@@ -8,6 +10,7 @@ use sinfo::{Memory, SystemInfo};
 use std::{str, thread, time};
 use termion::color::{Fg, Reset, Rgb};
 
+/// Entry point into lib.rs
 pub fn run(delay: usize, gpu: bool, color: char) -> Result<(), anyhow::Error> {
     let colors = Colors::new(color);
 

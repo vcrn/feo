@@ -16,4 +16,5 @@ rounded-div = "0.1.2"
 clap = { version = "4.0.30", features = ["derive"] }
 termion = "1.5.6"
 anyhow = "1.0.66"
-sinfo = "0.1.2"
+#sinfo = "0.1.2"
+sinfo = {path = "../sinfo"}

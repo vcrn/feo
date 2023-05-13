@@ -5,27 +5,10 @@ mod colors;
 use colors::Colors;
 use rounded_div::RoundedDiv;
 use sinfo::{Memory, SystemInfo};
-use std::io::Error;
-use std::process::Command;
-use std::{fs, str, thread, time};
+use std::{str, thread, time};
 use termion::color::{Fg, Reset, Rgb};
 
-/// Basic check for compability instead of designing all corresponding functions to handle errors well.
-fn check_compability(check_gpu: bool) -> Result<(), Error> {
-    Command::new("nproc").output()?; // Checking number of CPU cores
-    fs::read_to_string("/sys/class/thermal/thermal_zone0/temp")?; // Checking CPU temperature
-    fs::read_to_string("/proc/stat")?; // Checking CPU time
-    fs::read_to_string("/proc/meminfo")?; // Checking memory
-    fs::read_to_string("/proc/uptime")?; // Checking uptime
-    if check_gpu {
-        Command::new("vcgencmd").arg("measure_temp").output()?; // Checking GPU temperature
-    }
-    Ok(())
-}
-
 pub fn run(delay: usize, gpu: bool, color: char) -> Result<(), anyhow::Error> {
-    check_compability(gpu)?; // TODO: add error message specifying that it failed since system is not Linux or can't read GPU temp
-
     let colors = Colors::new(color);
 
     let delay_usize = match delay {
@@ -110,10 +93,16 @@ fn print_cpu_load(delay: usize, color: Rgb, cpu_time: &[usize], cpu_time_prev: V
 /// Prints memory usage
 fn print_mem_use(color: Rgb, mem_available: &Memory, mem_total: &Memory) {
     let ram_usage = Memory::format(mem_total.ram - mem_available.ram);
-    let ram_fraction = format!("{ram_usage}/{}", mem_total.get_ram_with_unit());
+    let ram_fraction = match &mem_total.ram_with_unit {
+        Some(ram_with_unit) => format!("{ram_usage}/{}", ram_with_unit),
+        None => format!("{ram_usage}/{}", Memory::format(mem_total.ram)),
+    };
 
     let swap_usage = Memory::format(mem_total.swap - mem_available.swap);
-    let swap_fraction = format!("{swap_usage}/{}", mem_total.get_swap_with_unit());
+    let swap_fraction = match &mem_total.swap_with_unit {
+        Some(swap_with_unit) => format!("{swap_usage}/{}", swap_with_unit),
+        None => format!("{swap_usage}/{}", Memory::format(mem_total.swap)),
+    };
 
     println!("{}RAM{}:{:>26}", Fg(color), Fg(Reset), ram_fraction);
     println!("{}Swap{}:{:>25}", Fg(color), Fg(Reset), swap_fraction);

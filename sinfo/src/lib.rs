@@ -2,19 +2,19 @@
 use std::process::Command;
 use std::{fs, str};
 
-use anyhow::bail;
+use anyhow::{bail, Error};
 
 /// Used for storing total or available RAM and Swap.
 pub struct Memory {
-    pub ram: f32,                   // RAM in KiB
-    pub swap: f32,                  // Swap in KiB
-    ram_with_unit: Option<String>,  // RAM formatted with a suitable unit
-    swap_with_unit: Option<String>, // Swap formatted with a suitable unit
+    pub ram: f32,                       // RAM in KiB
+    pub swap: f32,                      // Swap in KiB
+    pub ram_with_unit: Option<String>,  // RAM formatted with a suitable unit
+    pub swap_with_unit: Option<String>, // Swap formatted with a suitable unit
 }
 
 impl Memory {
     /// Creates an instance storing memory matching the search word arguments.
-    fn new(search_word_ram: &str, search_word_swap: &str) -> Result<Memory, anyhow::Error> {
+    fn new(search_word_ram: &str, search_word_swap: &str) -> Result<Memory, Error> {
         let meminfo_content = fs::read_to_string("/proc/meminfo")?;
 
         let mut meminfo_split: Vec<&str> = meminfo_content.split(&[':', ' ', '\n'][..]).collect();
@@ -44,12 +44,12 @@ impl Memory {
     }
 
     /// Returns available RAM and free Swap
-    pub fn get_free() -> Result<Memory, anyhow::Error> {
+    pub fn get_free() -> Result<Memory, Error> {
         Self::new("MemAvailable", "SwapFree")
     }
 
     /// Returns Memory instance storing total RAM and total Swap
-    pub fn get_total() -> Result<Memory, anyhow::Error> {
+    pub fn get_total() -> Result<Memory, Error> {
         Self::new("MemTotal", "SwapTotal")
     }
 
@@ -70,20 +70,20 @@ impl Memory {
         self.swap_with_unit = Some(Self::format(self.swap));
     }
 
-    /// Returns the RAM with unit as a &str
-    pub fn get_ram_with_unit(&self) -> &str {
-        self.ram_with_unit
-            .as_ref()
-            .expect("ram_with_unit is None")
-            .as_str()
+    /// Returns the RAM with unit as a String
+    pub fn get_ram_with_unit(&mut self) -> String {
+        match &self.ram_with_unit {
+            Some(ram_with_unit_ref) => ram_with_unit_ref.to_string(),
+            None => Self::format(self.swap),
+        }
     }
 
-    /// Returns the Swap with unit as a &str
-    pub fn get_swap_with_unit(&self) -> &str {
-        self.swap_with_unit
-            .as_ref()
-            .expect("swap_with_unit is None")
-            .as_str()
+    /// Returns the Swap with unit as a String
+    pub fn get_swap_with_unit(&mut self) -> String {
+        match &self.swap_with_unit {
+            Some(swap_with_unit_ref) => swap_with_unit_ref.to_string(),
+            None => Self::format(self.swap),
+        }
     }
 }
 
@@ -100,7 +100,7 @@ impl SystemInfo {
     /// Returns an object containing system information.
     /// `gpu` controls whether GPU temperature is to be checked, which only works for Raspberry Pi.
     /// `num_cpus` is the number of CPUs and can be supplied with SystemInfo::get_num_cpus.
-    pub fn new(gpu: bool, num_cpus: usize) -> Result<SystemInfo, anyhow::Error> {
+    pub fn new(gpu: bool, num_cpus: usize) -> Result<SystemInfo, Error> {
         let cpu_temp = Self::get_cpu_temp()?;
         let gpu_temp = match gpu {
             true => Some(Self::get_gpu_temp()?),
@@ -120,7 +120,7 @@ impl SystemInfo {
     }
 
     /// Returns the CPU temperature
-    fn get_cpu_temp() -> Result<f32, anyhow::Error> {
+    fn get_cpu_temp() -> Result<f32, Error> {
         // Returns CPU temp * 1000
         let cpu_temp_content = fs::read_to_string("/sys/class/thermal/thermal_zone0/temp")?;
         let cpu_temp_1000_f32 = cpu_temp_content.trim_end().parse::<f32>()?;
@@ -128,12 +128,11 @@ impl SystemInfo {
     }
 
     /// Returns the GPU temperature (only available for Raspberry Pi)
-    fn get_gpu_temp() -> Result<f32, anyhow::Error> {
+    fn get_gpu_temp() -> Result<f32, Error> {
         // Returns stdout (standard output stream) and stderr (standard error stream).
         let gpu_temp_output = Command::new("vcgencmd").arg("measure_temp").output()?;
         // Takes stdout (bytestring), turns to utf8, splits at '=' and ''' and saves as vector.
-        let gpu_temp_str_splitted: Vec<&str> = str::from_utf8(&gpu_temp_output.stdout)
-            .expect("Failed to convert from byte string")
+        let gpu_temp_str_splitted: Vec<&str> = str::from_utf8(&gpu_temp_output.stdout)?
             .split(['=', '\''].as_ref())
             .collect();
         //  Takes second element of vector, i.e. the temperature.
@@ -141,16 +140,18 @@ impl SystemInfo {
     }
 
     /// Returns the number of CPU(s)
-    pub fn get_cpus() -> Result<usize, anyhow::Error> {
+    pub fn get_cpus() -> Result<usize, Error> {
         let n_cpus_output = Command::new("nproc").output()?;
         let n_cpus_utf8 = str::from_utf8(&n_cpus_output.stdout)?;
         Ok(n_cpus_utf8.trim_end().parse::<usize>()?)
     }
 
     /// Returns the sum of cumulative CPU times for user and system since boot. TODO: Consider getting time for I/O wait?
-    fn get_cpu_time(num_cpus: usize) -> Result<Vec<usize>, anyhow::Error> {
-        let proc_stat_content =
-            fs::read_to_string("/proc/stat").expect("Failed to read cpu times from file");
+    fn get_cpu_time(num_cpus: usize) -> Result<Vec<usize>, Error> {
+        let proc_stat_content = match fs::read_to_string("/proc/stat") {
+            Ok(content) => content,
+            Err(_) => bail!("Failed to read CPU times from file"),
+        };
 
         let proc_stat_split: Vec<&str> = proc_stat_content.split(&[' ', '\n'][..]).collect();
         let mut cpu_times = Vec::with_capacity(num_cpus);
@@ -163,7 +164,7 @@ impl SystemInfo {
                 None => bail!("Couldn't find position of {search_word}"),
             };
 
-            let cpu_i_time_sum = proc_stat_split[index_cpun + 1].parse::<usize>().unwrap()
+            let cpu_i_time_sum = proc_stat_split[index_cpun + 1].parse::<usize>()?
                 + proc_stat_split[index_cpun + 1 + 2].parse::<usize>()?;
             cpu_times.push(cpu_i_time_sum);
         }
@@ -171,10 +172,14 @@ impl SystemInfo {
     }
 
     /// Returns uptime since boot in seconds
-    fn get_uptime() -> Result<f64, anyhow::Error> {
-        let uptime_content = fs::read_to_string("/proc/uptime").expect("Failed to read uptime");
-        let uptime_split: Vec<&str> = uptime_content.split(&[' '][..]).collect();
-        Ok(uptime_split[0].parse::<f64>()?)
+    fn get_uptime() -> Result<f64, Error> {
+        match fs::read_to_string("/proc/uptime") {
+            Ok(uptime_content) => {
+                let uptime_split: Vec<&str> = uptime_content.split(&[' '][..]).collect();
+                Ok(uptime_split[0].parse::<f64>()?)
+            }
+            Err(_) => bail!("Failed to read uptime"),
+        }
     }
 }
 
